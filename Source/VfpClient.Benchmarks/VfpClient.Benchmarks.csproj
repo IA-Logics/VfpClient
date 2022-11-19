@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1;net6.0-windows</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net6.0-windows</TargetFrameworks>
  </PropertyGroup>
   <PropertyGroup>
     <PlatformTarget>x86</PlatformTarget>
