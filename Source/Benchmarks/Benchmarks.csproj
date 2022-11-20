@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Source\VfpClient.Benchmarks\VfpClient.Benchmarks.csproj" />
+    <ProjectReference Include="..\VfpClient.Benchmarks\VfpClient.Benchmarks.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
