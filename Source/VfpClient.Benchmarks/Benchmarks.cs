@@ -1,7 +1,4 @@
-﻿using System;
-using BenchmarkDotNet;
-using BenchmarkDotNet.Attributes;
-using VfpClient;
+﻿using BenchmarkDotNet.Attributes;
 using Dapper;
 using System.Collections.Generic;
 
@@ -9,6 +6,11 @@ namespace VfpClient.Benchmarks
 {
     public class Benchmarks
     {
+        public Benchmarks()
+        {
+
+        }
+
         [Benchmark]
         [BenchmarkCategory("Unbuffered")]
         public void Scenario1()
