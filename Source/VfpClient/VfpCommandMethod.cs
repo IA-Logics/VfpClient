@@ -1,5 +1,7 @@
-namespace VfpClient {
-    public enum VfpCommandMethod {
+namespace VfpClient
+{
+    public enum VfpCommandMethod
+    {
         ExecuteNonQuery, ExecuteReader, ExecuteScalar, DataAdapterFill
     }
 }

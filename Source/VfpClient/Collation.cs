@@ -1,5 +1,7 @@
-namespace VfpClient {
-    public enum Collation {
+namespace VfpClient
+{
+    public enum Collation
+    {
         ARABIC,
         CZECH,
         DUTCH,

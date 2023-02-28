@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class DataTypes {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class DataTypes
+            {
                 public static readonly string VfpType = "VfpType";
                 public static readonly string VfpTypeName = "VfpTypeName";
                 public static readonly string ColumnSize = "ColumnSize";

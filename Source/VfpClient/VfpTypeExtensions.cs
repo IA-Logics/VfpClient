@@ -1,6 +1,9 @@
-﻿namespace VfpClient {
-    public static class VfpTypeExtensions {
-        public static bool IsStringType(this VfpType vfpType) {
+﻿namespace VfpClient
+{
+    public static class VfpTypeExtensions
+    {
+        public static bool IsStringType(this VfpType vfpType)
+        {
             return vfpType == VfpType.BinaryCharacter ||
                    vfpType == VfpType.BinaryMemo ||
                    vfpType == VfpType.BinaryVarchar ||

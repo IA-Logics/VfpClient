@@ -1,21 +1,27 @@
 using System;
 
-namespace VfpClient.Utils.DbcCreator {
-    internal static class VfpCodeFieldConverter {
-        public static string GetVfpCode(Field field) {
+namespace VfpClient.Utils.DbcCreator
+{
+    internal static class VfpCodeFieldConverter
+    {
+        public static string GetVfpCode(Field field)
+        {
             ArgumentUtility.CheckNotNull("field", field);
 
             return string.Format("{0} {1} {2} ", field.Name, GetFieldType(field), GetNull(field));
         }
 
-        private static string GetNull(Field field) {
+        private static string GetNull(Field field)
+        {
             return (field.Nullable ? " NULL" : " NOT NULL");
         }
 
-        private static string GetFieldType(Field field) {
+        private static string GetFieldType(Field field)
+        {
             var fieldType = string.Empty;
 
-            switch (field.VfpType) {
+            switch (field.VfpType)
+            {
                 case VfpType.Logical:
                 case VfpType.Integer:
                 case VfpType.AutoIncInteger:
@@ -34,10 +40,12 @@ namespace VfpClient.Utils.DbcCreator {
                 case VfpType.BinaryVarchar:
                     var vfpType = VfpMapping.GetVfpStringType(field.Width);
 
-                    if (vfpType == VfpType.Memo) {
+                    if (vfpType == VfpType.Memo)
+                    {
                         fieldType = vfpType.ToFieldType();
                     }
-                    else {
+                    else
+                    {
                         fieldType = string.Format(vfpType.ToFieldType(), field.Width);
                     }
 

@@ -119,16 +119,16 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="BlankDbc" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\blank.dbc;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>Resources\Blank.dbc;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="BlankDct" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\blank.dct;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>Resources\Blank.dct;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="BlankDcx" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\blank.dcx;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>Resources\Blank.dcx;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="IndexSchemaAutoIncCandidate" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\indexschemaautoinccandidate.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <value>Resources\IndexSchemaAutoIncCandidate.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="PackTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\PackTable.PRG;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
@@ -146,7 +146,7 @@
     <value>Resources\TableFieldProps.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="TableProps" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\tableprops.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <value>Resources\TableProps.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="VfpCommandBuilder_InvalidQuotePrefix" xml:space="preserve">
     <value>Invalid quote prefix.</value>
@@ -176,7 +176,7 @@
     <value>Resources\ViewFieldProps.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="ViewProps" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\viewprops.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <value>Resources\ViewProps.prg;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="ZapTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\ZapTable.PRG;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>

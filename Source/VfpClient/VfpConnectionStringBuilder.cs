@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using static System.String;
 
-namespace VfpClient {
-    public class VfpConnectionStringBuilder : DbConnectionStringBuilder {
+namespace VfpClient
+{
+    public class VfpConnectionStringBuilder : DbConnectionStringBuilder
+    {
         public const string DefaultProvider = "VFPOLEDB";
         private const string AnsiKey = "Ansi";
         private const string CollatingSequenceKey = "Collating Sequence";
@@ -15,12 +17,15 @@ namespace VfpClient {
         private const string NullKey = "Null";
         private const string ProviderKey = "Provider";
 
-        public new string ConnectionString {
+        public new string ConnectionString
+        {
             get => base.ConnectionString;
-            set {
+            set
+            {
                 var connectionString = value;
 
-                if(MissingDataSource(connectionString)) {
+                if (MissingDataSource(connectionString))
+                {
                     connectionString = $"{DataSourceKey}={connectionString}";
                 }
 
@@ -31,15 +36,18 @@ namespace VfpClient {
         }
 
         [DisplayName(ProviderKey)]
-        public string Provider {
+        public string Provider
+        {
             get => ContainsKey(ProviderKey) ? this[ProviderKey] as string : Empty;
             set => this[ProviderKey] = value;
         }
 
         [DisplayName(DataSourceKey)]
-        public string DataSource {
+        public string DataSource
+        {
             get => ContainsKey(DataSourceKey) ? this[DataSourceKey] as string : Empty;
-            set {
+            set
+            {
                 this[DataSourceKey] = value;
 
                 EnsureProviderIsSet();
@@ -49,7 +57,8 @@ namespace VfpClient {
         [DisplayName(CollatingSequenceKey)]
         [DefaultValue(Collation.MACHINE)]
         [TypeConverter(typeof(CollationEnumConverter))]
-        public Collation CollatingSequence {
+        public Collation CollatingSequence
+        {
             get => GetCollation();
             set => base[CollatingSequenceKey] = value;
         }
@@ -57,7 +66,8 @@ namespace VfpClient {
         [DisplayName(AnsiKey)]
         [DefaultValue(true)]
         [Description("Set as false to have string comparisons match based on the length of the shorter string.")]
-        public bool Ansi {
+        public bool Ansi
+        {
             get => GetBooleanValue(AnsiKey, true);
             set => this[AnsiKey] = value;
         }
@@ -65,7 +75,8 @@ namespace VfpClient {
         [DisplayName(DeletedKey)]
         [DefaultValue(true)]
         [Description("Set as false to include deleted records when querying data.")]
-        public bool Deleted {
+        public bool Deleted
+        {
             get => GetBooleanValue(DeletedKey, true);
             set => this[DeletedKey] = value;
         }
@@ -73,7 +84,8 @@ namespace VfpClient {
         [DisplayName(NullKey)]
         [DefaultValue(true)]
         [Description("")]
-        public bool Null {
+        public bool Null
+        {
             get => GetBooleanValue(NullKey, true);
             set => this[NullKey] = value;
         }
@@ -84,23 +96,28 @@ namespace VfpClient {
         [Browsable(false)]
         public bool IsDbc { get; private set; }
 
-        public override object this[string keyword] {
+        public override object this[string keyword]
+        {
             get => base[keyword];
-            set {
+            set
+            {
                 base[keyword] = value;
 
-                if(!keyword.Equals(DataSourceKey, StringComparison.InvariantCultureIgnoreCase)) {
+                if (!keyword.Equals(DataSourceKey, StringComparison.InvariantCultureIgnoreCase))
+                {
                     return;
                 }
 
                 var dataSource = value as string;
                 var fileName = Empty;
 
-                if(!IsNullOrEmpty(dataSource)) {
+                if (!IsNullOrEmpty(dataSource))
+                {
                     fileName = GetFileName(dataSource);
                     IsDbc = fileName.EndsWith(".dbc", true, null);
 
-                    if(!IsDbc) {
+                    if (!IsDbc)
+                    {
                         fileName = Empty;
                     }
                 }
@@ -109,8 +126,10 @@ namespace VfpClient {
             }
         }
 
-        private static string GetFileName(string dataSource) {
-            if(IsNullOrEmpty(dataSource) || Path.GetInvalidPathChars().Any(dataSource.Contains)) {
+        private static string GetFileName(string dataSource)
+        {
+            if (IsNullOrEmpty(dataSource) || Path.GetInvalidPathChars().Any(dataSource.Contains))
+            {
                 return Empty;
             }
 
@@ -118,27 +137,33 @@ namespace VfpClient {
         }
 
         public VfpConnectionStringBuilder()
-            : this(null) {
+            : this(null)
+        {
         }
 
-        public VfpConnectionStringBuilder(string connectionString) {
+        public VfpConnectionStringBuilder(string connectionString)
+        {
             Clear();
             ConnectionString = connectionString;
         }
 
-        public override void Clear() {
+        public override void Clear()
+        {
             Database = Empty;
             IsDbc = false;
 
             base.Clear();
         }
 
-        public void EnsureProviderIsSet() {
-            if(IsNullOrEmpty(ConnectionString)) {
+        public void EnsureProviderIsSet()
+        {
+            if (IsNullOrEmpty(ConnectionString))
+            {
                 return;
             }
 
-            if(!IsNullOrEmpty(Provider)) {
+            if (!IsNullOrEmpty(Provider))
+            {
                 return;
             }
 
@@ -151,18 +176,22 @@ namespace VfpClient {
         private Collation GetCollation() =>
             GetCollation(ContainsKey(CollatingSequenceKey) ? this[CollatingSequenceKey].ToString() : null);
 
-        private static Collation GetCollation(string collationText) {
+        private static Collation GetCollation(string collationText)
+        {
             var collation = Collation.MACHINE;
 
-            if(collationText != null) {
+            if (collationText != null)
+            {
                 collation = (Collation)Enum.Parse(typeof(Collation), collationText, true);
             }
 
             return collation;
         }
 
-        private bool GetBooleanValue(string key, bool defaultValue = false) {
-            if(!TryGetValue(key, out var value)) {
+        private bool GetBooleanValue(string key, bool defaultValue = false)
+        {
+            if (!TryGetValue(key, out var value))
+            {
                 return defaultValue;
             }
 

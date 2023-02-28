@@ -4,19 +4,25 @@ using System.Linq;
 using System.Data.OleDb;
 using TableField = VfpClient.VfpConnection.SchemaColumnNames.TableField;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class TableFieldSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class TableFieldSchemaProvider : SchemaProviderBase
+        {
             public TableFieldSchemaProvider()
-                : base(VfpConnection.SchemaNames.TableFields, GetRestrictions(), GetColumns()) {
+                : base(VfpConnection.SchemaNames.TableFields, GetRestrictions(), GetColumns())
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { TableField.TableName, TableField.FieldName };
             }
 
-            private static SchemaColumn[] GetColumns() {
-                return new[] {               
+            private static SchemaColumn[] GetColumns()
+            {
+                return new[] {
                     new SchemaColumn(TableField.TableName, typeof(string), false),
                     new SchemaColumn(TableField.FieldName, typeof(string), false),
                     new SchemaColumn(TableField.VfpType, typeof(int), false),
@@ -37,7 +43,8 @@ namespace VfpClient.Utils {
                 };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var tableName = restrictionValues == null || restrictionValues.Length < 1 ? null : restrictionValues[0];
@@ -45,21 +52,25 @@ namespace VfpClient.Utils {
                 var schema = CreateSchemaStructure();
                 var tableSchema = connection.OleDbConnection.GetSchema("Tables", new[] { null, null, tableName, "TABLE" });
 
-                if (tableSchema.Rows.Count == 0) {
+                if (tableSchema.Rows.Count == 0)
+                {
                     return schema;
                 }
 
                 var props = GetProps(connection, tableSchema).AsEnumerable().ToList();
                 var propColumns = Columns.Where(x => x.UseGetDbProp).ToArray();
 
-                foreach (DataRow row in tableSchema.Rows) {
+                foreach (DataRow row in tableSchema.Rows)
+                {
                     var schemaTableName = row.Field<string>("TABLE_NAME");
                     var oleDbColumnSchema = connection.OleDbConnection.GetSchema("Columns", new[] { null, null, schemaTableName, fieldName });
 
-                    foreach (DataRow fieldRow in oleDbColumnSchema.Rows) {
+                    foreach (DataRow fieldRow in oleDbColumnSchema.Rows)
+                    {
                         var schemaFieldName = fieldRow.Field<string>("COLUMN_NAME");
-                        
-                        if (fieldName != null && !fieldName.Equals(schemaFieldName, StringComparison.OrdinalIgnoreCase)) {
+
+                        if (fieldName != null && !fieldName.Equals(schemaFieldName, StringComparison.OrdinalIgnoreCase))
+                        {
                             continue;
                         }
 
@@ -74,20 +85,24 @@ namespace VfpClient.Utils {
 
                         var vfpType = ((OleDbType)Convert.ToInt32(fieldRow["DATA_TYPE"])).ToVfpType();
                         var propVfpType = propRow.Field<string>("FieldType").ToVfpType();
-                        
-                        if (!vfpType.IsStringType() && propVfpType.IsStringType()) {
+
+                        if (!vfpType.IsStringType() && propVfpType.IsStringType())
+                        {
                             vfpType = propVfpType;
                         }
-                        
+
                         schemaRow[TableField.Ordinal] = fieldRow["ORDINAL_POSITION"];
 
-                        if (fieldRow["CHARACTER_MAXIMUM_LENGTH"].ToString().Equals(string.Empty)) {
+                        if (fieldRow["CHARACTER_MAXIMUM_LENGTH"].ToString().Equals(string.Empty))
+                        {
                             schemaRow[TableField.Width] = fieldRow["NUMERIC_PRECISION"];
                         }
-                        else {
+                        else
+                        {
                             var maxLength = Convert.ToInt32(fieldRow["CHARACTER_MAXIMUM_LENGTH"]);
 
-                            if (maxLength == int.MaxValue && (vfpType == VfpType.Character || vfpType == VfpType.Varchar)) {
+                            if (maxLength == int.MaxValue && (vfpType == VfpType.Character || vfpType == VfpType.Varchar))
+                            {
                                 vfpType = VfpType.Memo;
                             }
 
@@ -98,7 +113,8 @@ namespace VfpClient.Utils {
                         schemaRow[TableField.VfpType] = vfpType;
                         schemaRow[TableField.VfpTypeName] = vfpType.ToVfpTypeName();
 
-                        if (connection.IsDbc) {
+                        if (connection.IsDbc)
+                        {
                             propColumns.ForEach(x => schemaRow[x.Name] = propRow[x.Name]);
                         }
 
@@ -111,14 +127,16 @@ namespace VfpClient.Utils {
                 return schema;
             }
 
-            private static DataTable GetProps(VfpConnection connection, DataTable schema) {
+            private static DataTable GetProps(VfpConnection connection, DataTable schema)
+            {
                 var tableNames = schema.AsEnumerable().Select(x => x.Field<string>("TABLE_NAME")).Distinct();
                 var inserts = string.Join(Environment.NewLine, tableNames.Select(x => string.Format("INSERT INTO curTables VALUES('{0}')", x)).ToArray());
                 var vfpCode = string.Format(Resources.TableFieldProps, inserts);
 
                 connection.ExecuteScript(vfpCode);
 
-                using (var command = connection.CreateCommand()) {
+                using (var command = connection.CreateCommand())
+                {
                     command.CommandType = CommandType.Text;
                     command.CommandText = "SELECT * FROM curOutput";
 

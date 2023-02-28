@@ -3,15 +3,19 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace VfpClient.Utils {
-    internal partial class VfpCommandParameterRewritter {
-        internal abstract class RewriterBase {
+namespace VfpClient.Utils
+{
+    internal partial class VfpCommandParameterRewritter
+    {
+        internal abstract class RewriterBase
+        {
             public VfpCommand VfpCommand { get; private set; }
             protected readonly char[] SpecialCharacters = new[] { '%', '-', '=', '+', '<', '>', '/', '*', '^', '(', ')', ',' };
             private readonly char[] _regExCharacterRequiredEscape = new[] { '+', '*', '^', '(', ')', ',' };
             private readonly string _regEndsWithPattern;
 
-            protected RewriterBase(VfpCommand vfpCommand) {
+            protected RewriterBase(VfpCommand vfpCommand)
+            {
                 ArgumentUtility.CheckNotNull("vfpCommand", vfpCommand);
 
                 VfpCommand = vfpCommand;
@@ -20,15 +24,19 @@ namespace VfpClient.Utils {
 
             public abstract void Rewrite();
 
-            private string GetSpecialCharactersPattern() {
+            private string GetSpecialCharactersPattern()
+            {
                 var stringBuilder = new StringBuilder();
 
-                foreach (var specialCharacter in SpecialCharacters) {
-                    if (stringBuilder.Length > 0) {
+                foreach (var specialCharacter in SpecialCharacters)
+                {
+                    if (stringBuilder.Length > 0)
+                    {
                         stringBuilder.Append("|");
                     }
 
-                    if (_regExCharacterRequiredEscape.Contains(specialCharacter)) {
+                    if (_regExCharacterRequiredEscape.Contains(specialCharacter))
+                    {
                         stringBuilder.Append("\\");
                     }
 
@@ -38,7 +46,8 @@ namespace VfpClient.Utils {
                 return "\\s|" + stringBuilder.ToString();
             }
 
-            protected IEnumerable<VfpParameter> GetOrderedParameters() {
+            protected IEnumerable<VfpParameter> GetOrderedParameters()
+            {
                 return VfpCommand.Parameters
                                  .Cast<VfpParameter>()
                                  .Select((x, index) => new { Parameter = x, Ordinal = index })
@@ -47,13 +56,15 @@ namespace VfpClient.Utils {
                                  .Select(x => x.Parameter);
             }
 
-            protected MatchCollection GetParameterNameMatches(string parameterName) {
+            protected MatchCollection GetParameterNameMatches(string parameterName)
+            {
                 ArgumentUtility.CheckNotNullOrEmpty("parameterName", parameterName);
 
                 return GetCommandTextMatches(VfpParameter.ParamerterNamePrefix + parameterName + @"(" + _regEndsWithPattern + ")");
             }
 
-            protected MatchCollection GetCommandTextMatches(string pattern) {
+            protected MatchCollection GetCommandTextMatches(string pattern)
+            {
                 ArgumentUtility.CheckNotNullOrEmpty("pattern", pattern);
 
                 return Regex.Matches(VfpCommand.CommandText, pattern, RegexOptions.IgnoreCase);

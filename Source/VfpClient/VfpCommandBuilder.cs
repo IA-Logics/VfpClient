@@ -4,12 +4,17 @@ using System.Data.OleDb;
 using System.Globalization;
 using System.Reflection;
 
-namespace VfpClient {
-    public class VfpCommandBuilder : DbCommandBuilder {
-        public override string QuotePrefix {
+namespace VfpClient
+{
+    public class VfpCommandBuilder : DbCommandBuilder
+    {
+        public override string QuotePrefix
+        {
             get { return string.Empty; }
-            set {
-                if (!string.IsNullOrEmpty(value)) {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
                     throw new VfpException(Resources.VfpCommandBuilder_InvalidQuotePrefix);
                 }
 
@@ -17,10 +22,13 @@ namespace VfpClient {
             }
         }
 
-        public override string QuoteSuffix {
+        public override string QuoteSuffix
+        {
             get { return string.Empty; }
-            set {
-                if (!string.IsNullOrEmpty(value)) {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
                     throw new VfpException(Resources.VfpCommandBuilder_InvalidQuoteSuffix);
                 }
 
@@ -28,102 +36,126 @@ namespace VfpClient {
             }
         }
 
-        public new VfpDataAdapter DataAdapter {
+        public new VfpDataAdapter DataAdapter
+        {
             get { return base.DataAdapter as VfpDataAdapter; }
             set { base.DataAdapter = value; }
         }
 
-        public VfpCommandBuilder() {
+        public VfpCommandBuilder()
+        {
         }
 
-        public VfpCommandBuilder(VfpDataAdapter adapter) {
+        public VfpCommandBuilder(VfpDataAdapter adapter)
+        {
             DataAdapter = adapter;
         }
 
-        public override string QuoteIdentifier(string unquotedIdentifier) {
+        public override string QuoteIdentifier(string unquotedIdentifier)
+        {
             return unquotedIdentifier;
         }
 
-        public override string UnquoteIdentifier(string quotedIdentifier) {
+        public override string UnquoteIdentifier(string quotedIdentifier)
+        {
             return quotedIdentifier;
         }
 
-        protected override void ApplyParameterInfo(DbParameter parameter, DataRow row, StatementType statementType, bool whereClause) {
+        protected override void ApplyParameterInfo(DbParameter parameter, DataRow row, StatementType statementType, bool whereClause)
+        {
             var vfpParameter = (VfpParameter)parameter;
 
             vfpParameter.VfpType = ((OleDbType)row.Field<int>(SchemaTableColumn.ProviderType)).ToVfpType();
         }
 
-        protected override string GetParameterName(string parameterName) {
+        protected override string GetParameterName(string parameterName)
+        {
             return "@" + parameterName;
         }
 
-        protected override DataTable GetSchemaTable(DbCommand sourceCommand) {
+        protected override DataTable GetSchemaTable(DbCommand sourceCommand)
+        {
             var vfpCommand = (VfpCommand)sourceCommand;
 
-            using (var vfpDataReader = vfpCommand.ExecuteReader(CommandBehavior.SchemaOnly | CommandBehavior.KeyInfo)) {
+            using (var vfpDataReader = vfpCommand.ExecuteReader(CommandBehavior.SchemaOnly | CommandBehavior.KeyInfo))
+            {
                 return vfpDataReader.GetSchemaTable();
             }
         }
 
-        protected override string GetParameterPlaceholder(int parameterOrdinal) {
+        protected override string GetParameterPlaceholder(int parameterOrdinal)
+        {
             return "@p" + parameterOrdinal.ToString(CultureInfo.InvariantCulture);
         }
 
-        protected override string GetParameterName(int parameterOrdinal) {
+        protected override string GetParameterName(int parameterOrdinal)
+        {
             return "@p" + parameterOrdinal.ToString(CultureInfo.InvariantCulture);
         }
 
-        protected override void SetRowUpdatingHandler(DbDataAdapter dbDataAdapter) {
+        protected override void SetRowUpdatingHandler(DbDataAdapter dbDataAdapter)
+        {
             var vfpDataAdapter = (VfpDataAdapter)dbDataAdapter;
 
-            if (dbDataAdapter == DataAdapter) {
+            if (dbDataAdapter == DataAdapter)
+            {
                 // removal case
                 vfpDataAdapter.RowUpdating -= VfpRowUpdatingHandler;
                 vfpDataAdapter.RowUpdated -= VfpRowUpdatedHandler;
             }
-            else {
+            else
+            {
                 // adding case
                 vfpDataAdapter.RowUpdating += VfpRowUpdatingHandler;
                 vfpDataAdapter.RowUpdated += VfpRowUpdatedHandler;
             }
         }
 
-        private static void VfpRowUpdatedHandler(object sender, VfpRowUpdatedEventArgs ruevent) {
-            if (ruevent.Status == UpdateStatus.Continue && ruevent.StatementType == StatementType.Insert) { 
-                
+        private static void VfpRowUpdatedHandler(object sender, VfpRowUpdatedEventArgs ruevent)
+        {
+            if (ruevent.Status == UpdateStatus.Continue && ruevent.StatementType == StatementType.Insert)
+            {
+
             }
         }
 
-        private void VfpRowUpdatingHandler(object sender, VfpRowUpdatingEventArgs ruevent) {
+        private void VfpRowUpdatingHandler(object sender, VfpRowUpdatingEventArgs ruevent)
+        {
             RowUpdatingHandler(ruevent);
 
-            if (ruevent.Errors != null) {
+            if (ruevent.Errors != null)
+            {
                 VfpClientTracing.Tracer.TraceError(string.Format("{0}.{1} : {2}", GetType().Name, MethodBase.GetCurrentMethod().Name, ruevent.Errors));
             }
         }
 
-        public new VfpCommand GetDeleteCommand() {
+        public new VfpCommand GetDeleteCommand()
+        {
             return GetDeleteCommand(true);
         }
 
-        public new VfpCommand GetDeleteCommand(bool useColumnsForParameterNames) {
+        public new VfpCommand GetDeleteCommand(bool useColumnsForParameterNames)
+        {
             return (VfpCommand)base.GetDeleteCommand(useColumnsForParameterNames);
         }
 
-        public new VfpCommand GetInsertCommand() {
+        public new VfpCommand GetInsertCommand()
+        {
             return GetInsertCommand(true);
         }
 
-        public new VfpCommand GetInsertCommand(bool useColumnsForParameterNames) {
+        public new VfpCommand GetInsertCommand(bool useColumnsForParameterNames)
+        {
             return (VfpCommand)base.GetInsertCommand(useColumnsForParameterNames);
         }
 
-        public new VfpCommand GetUpdateCommand() {
+        public new VfpCommand GetUpdateCommand()
+        {
             return GetUpdateCommand(true);
         }
 
-        public new VfpCommand GetUpdateCommand(bool useColumnsForParameterNames) {
+        public new VfpCommand GetUpdateCommand(bool useColumnsForParameterNames)
+        {
             return (VfpCommand)base.GetUpdateCommand(useColumnsForParameterNames);
         }
     }

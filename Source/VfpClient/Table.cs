@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class Table {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class Table
+            {
                 public static readonly string TableName = "TableName";
                 public static readonly string Comment = "Comment";
                 public static readonly string DeleteTrigger = "DeleteTrigger";

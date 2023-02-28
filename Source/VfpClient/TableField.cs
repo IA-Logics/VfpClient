@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class TableField {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class TableField
+            {
                 public static readonly string TableName = "TableName";
                 public static readonly string FieldName = "FieldName";
                 public static readonly string VfpType = "VfpType";

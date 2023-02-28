@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class ProcedureParameter {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class ProcedureParameter
+            {
                 public static readonly string ProcedureName = "ProcedureName";
                 public static readonly string ParameterName = "ParameterName";
                 public static readonly string VfpTypeName = "VfpTypeName";

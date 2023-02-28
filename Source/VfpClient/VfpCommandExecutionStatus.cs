@@ -1,5 +1,7 @@
-namespace VfpClient {
-    public enum VfpCommandExecutionStatus {
+namespace VfpClient
+{
+    public enum VfpCommandExecutionStatus
+    {
         Executing,
         Finished,
         Failed,

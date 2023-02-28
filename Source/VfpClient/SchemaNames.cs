@@ -1,9 +1,12 @@
 using System.Data.Common;
 using System.Data.OleDb;
 
-namespace VfpClient {
-    public partial class VfpConnection {
-        public static class SchemaNames {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public static class SchemaNames
+        {
             public static readonly string MetaDataCollections = DbMetaDataCollectionNames.MetaDataCollections;
             public static readonly string DataSourceInformation = DbMetaDataCollectionNames.DataSourceInformation;
             public static readonly string DataTypes = DbMetaDataCollectionNames.DataTypes;

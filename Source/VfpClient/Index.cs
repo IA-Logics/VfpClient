@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class Index {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class Index
+            {
                 public static readonly string TableName = "TableName";
                 public static readonly string IndexName = "IndexName";
                 public static readonly string PrimaryKey = "PrimaryKey";

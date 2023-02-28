@@ -4,19 +4,25 @@ using System.Globalization;
 using System.Linq;
 using ViewField = VfpClient.VfpConnection.SchemaColumnNames.ViewField;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class ViewFieldSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class ViewFieldSchemaProvider : SchemaProviderBase
+        {
             public ViewFieldSchemaProvider()
-                : base(VfpConnection.SchemaNames.ViewFields, GetRestrictions(), GetColumns()) {
+                : base(VfpConnection.SchemaNames.ViewFields, GetRestrictions(), GetColumns())
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { ViewField.ViewName, ViewField.FieldName };
             }
 
-            private static SchemaColumn[] GetColumns() {
-                return new[] {               
+            private static SchemaColumn[] GetColumns()
+            {
+                return new[] {
                     new SchemaColumn(ViewField.ViewName, typeof(string), false),
                     new SchemaColumn(ViewField.FieldName, typeof(string), false),
                     new SchemaColumn(ViewField.VfpType, typeof(int), false),
@@ -38,7 +44,8 @@ namespace VfpClient.Utils {
                 };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var schema = CreateSchemaStructure();
@@ -52,8 +59,10 @@ namespace VfpClient.Utils {
                 return schema;
             }
 
-            private void LoadViewFieldData(VfpConnection connection, string[] restrictionValues, DataTable schema) {
-                if (!connection.IsDbc) {
+            private void LoadViewFieldData(VfpConnection connection, string[] restrictionValues, DataTable schema)
+            {
+                if (!connection.IsDbc)
+                {
                     return;
                 }
 
@@ -61,22 +70,26 @@ namespace VfpClient.Utils {
                 var fieldName = restrictionValues == null || restrictionValues.Length < 2 ? null : restrictionValues[1];
                 var viewsSchema = connection.OleDbConnection.GetSchema("Views", new[] { null, null, viewName });
 
-                if (viewsSchema.Rows.Count == 0) {
+                if (viewsSchema.Rows.Count == 0)
+                {
                     return;
                 }
 
                 var props = GetProps(connection, viewsSchema).AsEnumerable().ToList();
                 var propColumns = Columns.Where(x => x.UseGetDbProp).ToArray();
 
-                foreach (DataRow row in viewsSchema.Rows) {
+                foreach (DataRow row in viewsSchema.Rows)
+                {
                     var schemaViewName = row.Field<string>("TABLE_NAME");
                     var oleDbColumnSchema = connection.OleDbConnection.GetSchema("Columns", new[] { null, null, schemaViewName, fieldName });
 
-                    foreach (DataRow fieldRow in oleDbColumnSchema.Rows) {
+                    foreach (DataRow fieldRow in oleDbColumnSchema.Rows)
+                    {
                         var schemaFieldName = fieldRow.Field<string>("COLUMN_NAME");
 
                         if (fieldName != null &&
-                            !fieldName.Equals(schemaFieldName, StringComparison.OrdinalIgnoreCase)) {
+                            !fieldName.Equals(schemaFieldName, StringComparison.OrdinalIgnoreCase))
+                        {
                             continue;
                         }
 
@@ -92,10 +105,11 @@ namespace VfpClient.Utils {
                         FillDataTypeWidthDecimalColumn(schemaRow, propRow.Field<string>("DataType"));
                         propColumns.ForEach(x => schemaRow[x.Name] = propRow[x.Name]);
 
-                        var vfpType = (VfpType) schemaRow[ViewField.VfpType];
+                        var vfpType = (VfpType)schemaRow[ViewField.VfpType];
                         var propVfpType = propRow.Field<string>("FieldType").ToVfpType();
 
-                        if (!vfpType.IsStringType() && propVfpType.IsStringType()) {
+                        if (!vfpType.IsStringType() && propVfpType.IsStringType())
+                        {
                             schemaRow[ViewField.VfpType] = propVfpType;
                         }
 
@@ -104,17 +118,21 @@ namespace VfpClient.Utils {
                 }
             }
 
-            private static void FillDataTypeWidthDecimalColumn(DataRow schemaRow, string dataTypeCode) {
+            private static void FillDataTypeWidthDecimalColumn(DataRow schemaRow, string dataTypeCode)
+            {
                 var openParanIndex = dataTypeCode.IndexOf('(');
                 var closeParanIndex = dataTypeCode.IndexOf(')');
                 var commaIndex = dataTypeCode.IndexOf(',');
 
-                if (openParanIndex != -1 && closeParanIndex != -1) {
-                    if (commaIndex != -1) {
+                if (openParanIndex != -1 && closeParanIndex != -1)
+                {
+                    if (commaIndex != -1)
+                    {
                         schemaRow[ViewField.Width] = dataTypeCode.Substring(openParanIndex + 1, commaIndex - openParanIndex - 1);
                         schemaRow[ViewField.Decimal] = dataTypeCode.Substring(commaIndex + 1, closeParanIndex - commaIndex - 1);
                     }
-                    else {
+                    else
+                    {
                         schemaRow[ViewField.Width] = dataTypeCode.Substring(openParanIndex + 1, closeParanIndex - openParanIndex - 1);
                     }
                 }
@@ -125,14 +143,16 @@ namespace VfpClient.Utils {
                 schemaRow["DataType"] = vfpType.ToVfpTypeName();
             }
 
-            private static DataTable GetProps(VfpConnection connection, DataTable schema) {
+            private static DataTable GetProps(VfpConnection connection, DataTable schema)
+            {
                 var tableNames = schema.AsEnumerable().Select(x => x.Field<string>("TABLE_NAME")).Distinct();
                 var inserts = string.Join(Environment.NewLine, tableNames.Select(x => string.Format("INSERT INTO curViews VALUES('{0}')", x)).ToArray());
                 var vfpCode = string.Format(Resources.ViewFieldProps, inserts);
 
                 connection.ExecuteScript(vfpCode);
 
-                using (var command = connection.CreateCommand()) {
+                using (var command = connection.CreateCommand())
+                {
                     command.CommandType = CommandType.Text;
                     command.CommandText = "SELECT * FROM curOutput";
 

@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class ForeignKey {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class ForeignKey
+            {
                 public static readonly string ForeignKeyName = "ForeignKeyName";
                 public static readonly string ForeignKeyTableName = "FkTableName";
                 public static readonly string ForeignKeyFieldName = "FkFieldName";

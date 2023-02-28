@@ -5,59 +5,72 @@ using System.Data.Common;
 using System.Data.OleDb;
 using System.Linq;
 
-namespace VfpClient {
-    public class VfpParameterCollection : DbParameterCollection {
+namespace VfpClient
+{
+    public class VfpParameterCollection : DbParameterCollection
+    {
         private readonly List<VfpParameter> _vfpParamCollection;
         private readonly OleDbParameterCollection _oleDbParameterCollection;
 
-        public override int Count {
+        public override int Count
+        {
             get { return _oleDbParameterCollection.Count; }
         }
 
-        public override bool IsFixedSize {
+        public override bool IsFixedSize
+        {
             get { return _oleDbParameterCollection.IsFixedSize; }
         }
 
-        public override bool IsReadOnly {
+        public override bool IsReadOnly
+        {
             get { return _oleDbParameterCollection.IsReadOnly; }
         }
 
-        public override bool IsSynchronized {
+        public override bool IsSynchronized
+        {
             get { return _oleDbParameterCollection.IsSynchronized; }
         }
 
-        public override object SyncRoot {
+        public override object SyncRoot
+        {
             get { return new VfpParameter(_oleDbParameterCollection.SyncRoot as OleDbParameter); }
         }
 
-        public new VfpParameter this[int index] {
+        public new VfpParameter this[int index]
+        {
             get { return (VfpParameter)base[index]; }
             set { base[index] = value; }
         }
 
-        public new VfpParameter this[string parameterName] {
+        public new VfpParameter this[string parameterName]
+        {
             get { return (VfpParameter)base[parameterName]; }
             set { base[parameterName] = value; }
         }
 
-        internal VfpParameterCollection(OleDbParameterCollection oleDbParameterCollection) {
+        internal VfpParameterCollection(OleDbParameterCollection oleDbParameterCollection)
+        {
             _oleDbParameterCollection = oleDbParameterCollection;
             _vfpParamCollection = new List<VfpParameter>();
             _oleDbParameterCollection.Cast<OleDbParameter>().ForEach(x => _vfpParamCollection.Add(new VfpParameter(x)));
         }
 
-        public VfpParameter Add(VfpParameter value) {
+        public VfpParameter Add(VfpParameter value)
+        {
             _vfpParamCollection.Add(value);
             _oleDbParameterCollection.Add(value.OleDbParameter);
 
             return value;
         }
 
-        public VfpParameter AddWithValue(string parameterName, object value) {
+        public VfpParameter AddWithValue(string parameterName, object value)
+        {
             return Add(new VfpParameter(parameterName, value));
         }
 
-        public VfpParameter Add(string parameterName, VfpType vfpType) {
+        public VfpParameter Add(string parameterName, VfpType vfpType)
+        {
             return Add(new VfpParameter(parameterName, vfpType));
         }
 
@@ -71,7 +84,8 @@ namespace VfpClient {
         }
         */
 
-        public override int Add(object parameter) {
+        public override int Add(object parameter)
+        {
             var vfpParameter = new VfpParameter((VfpParameter)parameter);
 
             _vfpParamCollection.Add(vfpParameter);
@@ -80,122 +94,149 @@ namespace VfpClient {
             return _vfpParamCollection.Count - 1;
         }
 
-        public void AddRange(VfpParameter[] values) {
+        public void AddRange(VfpParameter[] values)
+        {
             _vfpParamCollection.AddRange(values);
             _oleDbParameterCollection.AddRange(values.Select(x => x.OleDbParameter).ToArray());
         }
 
-        public override void AddRange(Array parameters) {
+        public override void AddRange(Array parameters)
+        {
             parameters.Cast<VfpParameter>()
-                      .ForEach(vfpParameter => {
+                      .ForEach(vfpParameter =>
+                      {
                           _vfpParamCollection.Add(vfpParameter);
                           _oleDbParameterCollection.Add(vfpParameter.OleDbParameter);
                       });
         }
 
-        public override void Clear() {
+        public override void Clear()
+        {
             _vfpParamCollection.Clear();
             _oleDbParameterCollection.Clear();
         }
 
-        public override bool Contains(string parameterName) {
+        public override bool Contains(string parameterName)
+        {
             return GetParameter(parameterName) != null;
         }
 
-        public bool Contains(VfpParameter value) {
+        public bool Contains(VfpParameter value)
+        {
             return -1 != IndexOf(value);
         }
 
-        public override bool Contains(object parameter) {
+        public override bool Contains(object parameter)
+        {
             return _vfpParamCollection.Contains((VfpParameter)parameter);
         }
 
-        public void CopyTo(VfpParameter[] array, int index) {
+        public void CopyTo(VfpParameter[] array, int index)
+        {
             CopyTo((Array)array, index);
         }
 
-        public override void CopyTo(Array array, int startIndex) {
-            if (array == null) {
+        public override void CopyTo(Array array, int startIndex)
+        {
+            if (array == null)
+            {
                 return;
             }
 
             var vfpParameters = new VfpParameter[array.Length];
             _vfpParamCollection.CopyTo(vfpParameters, startIndex);
 
-            for (int index = startIndex; index < startIndex + _vfpParamCollection.Count; ++index) {
+            for (int index = startIndex; index < startIndex + _vfpParamCollection.Count; ++index)
+            {
                 array.SetValue(vfpParameters.GetValue(index), index);
             }
         }
 
-        public override IEnumerator GetEnumerator() {
+        public override IEnumerator GetEnumerator()
+        {
             return _vfpParamCollection.GetEnumerator();
         }
 
-        protected override DbParameter GetParameter(string parameterName) {
+        protected override DbParameter GetParameter(string parameterName)
+        {
             return _vfpParamCollection.SingleOrDefault(x => x.ParameterName.Equals(parameterName));
         }
 
-        protected override DbParameter GetParameter(int index) {
+        protected override DbParameter GetParameter(int index)
+        {
             return _vfpParamCollection[index];
         }
 
-        public int IndexOf(VfpParameter value) {
+        public int IndexOf(VfpParameter value)
+        {
             return _vfpParamCollection.IndexOf(value);
         }
 
-        public override int IndexOf(string parameterName) {
+        public override int IndexOf(string parameterName)
+        {
             return IndexOf(GetParameter(parameterName));
         }
 
-        public void Insert(int index, VfpParameter value) {
+        public void Insert(int index, VfpParameter value)
+        {
             _vfpParamCollection.Insert(index, value);
             _oleDbParameterCollection.Insert(index, value.OleDbParameter);
         }
 
-        public override int IndexOf(object parameter) {
-            if (parameter == null) {
+        public override int IndexOf(object parameter)
+        {
+            if (parameter == null)
+            {
                 return -1;
             }
 
             return _vfpParamCollection.IndexOf((VfpParameter)parameter);
         }
 
-        public override void Insert(int index, object parameter) {
+        public override void Insert(int index, object parameter)
+        {
             var vfpParameter = (VfpParameter)parameter;
 
             _vfpParamCollection.Insert(index, vfpParameter);
             _oleDbParameterCollection.Insert(index, vfpParameter.OleDbParameter);
         }
 
-        public void Remove(VfpParameter value) {
+        public void Remove(VfpParameter value)
+        {
             _vfpParamCollection.Remove(value);
             _oleDbParameterCollection.Remove(value.OleDbParameter);
         }
 
-        public override void Remove(object parameter) {
+        public override void Remove(object parameter)
+        {
             Remove((VfpParameter)parameter);
         }
 
-        public override void RemoveAt(string parameterName) {
+        public override void RemoveAt(string parameterName)
+        {
             _vfpParamCollection.RemoveAll(x => x.ParameterName.Equals(parameterName));
             _oleDbParameterCollection.RemoveAt(parameterName);
         }
 
-        public override void RemoveAt(int index) {
+        public override void RemoveAt(int index)
+        {
             _vfpParamCollection.RemoveAt(index);
             _oleDbParameterCollection.RemoveAt(index);
         }
 
-        protected override void SetParameter(string parameterName, DbParameter value) {
+        protected override void SetParameter(string parameterName, DbParameter value)
+        {
             var parameter = _vfpParamCollection.Select((x, index) => new { Parameter = x, Index = index })
                                                     .SingleOrDefault(x => x.Parameter.ParameterName.Equals(parameterName));
 
-            if (parameter != null) {
+            if (parameter != null)
+            {
                 SetParameter(parameter.Index, value);
             }
         }
 
-        protected override void SetParameter(int index, DbParameter parameter) {
+        protected override void SetParameter(int index, DbParameter parameter)
+        {
             var vfpParameter = (VfpParameter)parameter;
 
             _vfpParamCollection[index] = vfpParameter;

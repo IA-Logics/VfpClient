@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class View {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class View
+            {
                 public static readonly string ViewName = "ViewName";
                 public static readonly string AllowSimultaneousFetch = "AllowSimultaneousFetch";
                 public static readonly string BatchUpdateCount = "BatchUpdateCount";

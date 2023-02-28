@@ -3,18 +3,24 @@ using System.Linq;
 using CandidateKey = VfpClient.VfpConnection.SchemaColumnNames.CandidateKey;
 using Index = VfpClient.VfpConnection.SchemaColumnNames.Index;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class CandidateKeySchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class CandidateKeySchemaProvider : SchemaProviderBase
+        {
             public CandidateKeySchemaProvider()
-                : base(VfpConnection.SchemaNames.CandidateKeys, GetRestrictions(), null) {
+                : base(VfpConnection.SchemaNames.CandidateKeys, GetRestrictions(), null)
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { CandidateKey.TableName, "NoTablesWithMultipleCandidateKeys" };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var schema = connection.GetSchema(VfpConnection.SchemaNames.Indexes, restrictionValues);
@@ -23,7 +29,8 @@ namespace VfpClient.Utils {
                 schema = schema.DefaultView.ToTable(Name, true, CandidateKey.TableName, CandidateKey.IndexName, CandidateKey.FieldName);
                 schema.TableName = Name;
 
-                if (schema.Rows.Count == 0 || !ShouldExcludeTablesWithMultipleCandidateKeys(restrictionValues)) {
+                if (schema.Rows.Count == 0 || !ShouldExcludeTablesWithMultipleCandidateKeys(restrictionValues))
+                {
                     return schema;
                 }
 
@@ -37,14 +44,16 @@ namespace VfpClient.Utils {
 
                 var query = schema.AsEnumerable().Where(x => !duplicates.Contains(x.Field<string>(CandidateKey.TableName)));
 
-                if (query.Any()) {
+                if (query.Any())
+                {
                     schema = query.CopyToDataTable();
                 }
 
                 return schema;
             }
 
-            private bool ShouldExcludeTablesWithMultipleCandidateKeys(string[] restrictionValues) {
+            private bool ShouldExcludeTablesWithMultipleCandidateKeys(string[] restrictionValues)
+            {
                 var noTablesWithMultipleCandidateKeysRestrictionValue = restrictionValues == null || restrictionValues.Length < 2 ? null : restrictionValues[1];
                 var noTablesWithMultipleCandidateKeys = false;
 

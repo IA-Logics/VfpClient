@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class DataSourceInformation {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class DataSourceInformation
+            {
                 public static readonly string CompositeIdentifierSeparatorPattern = "CompositeIdentifierSeparatorPattern";
                 public static readonly string DataSourceProductName = "DataSourceProductName";
                 public static readonly string DataSourceProductVersion = "DataSourceProductVersion";

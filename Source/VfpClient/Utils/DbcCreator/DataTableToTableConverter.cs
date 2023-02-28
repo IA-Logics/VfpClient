@@ -3,25 +3,32 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace VfpClient.Utils.DbcCreator {
-    public class DataTableToTableConverter : ITableConverter<DataTable> {
-        public Table Convert(DataTable dataTable) {
-            if (dataTable == null) {
+namespace VfpClient.Utils.DbcCreator
+{
+    public class DataTableToTableConverter : ITableConverter<DataTable>
+    {
+        public Table Convert(DataTable dataTable)
+        {
+            if (dataTable == null)
+            {
                 throw new ArgumentNullException("dataTable");
             }
 
             return GetTable(dataTable);
         }
 
-        private static Table GetTable(DataTable dataTable) {
-            return new Table {
+        private static Table GetTable(DataTable dataTable)
+        {
+            return new Table
+            {
                 Name = dataTable.TableName,
                 Fields = dataTable.Columns.Cast<DataColumn>().Select(GetField).ToArray(),
                 Indexes = GetIndexes(dataTable)
             };
         }
 
-        private static IEnumerable<Index> GetIndexes(DataTable dataTable) {
+        private static IEnumerable<Index> GetIndexes(DataTable dataTable)
+        {
             var list = new List<Index>();
 
             AddIndexes(list, dataTable.ChildRelations.Cast<DataRelation>(), true);
@@ -31,46 +38,57 @@ namespace VfpClient.Utils.DbcCreator {
             return list;
         }
 
-        private static void AddPrimaryKey(List<Index> list, DataTable dataTable) {
-            if (!dataTable.PrimaryKey.Any()) {
+        private static void AddPrimaryKey(List<Index> list, DataTable dataTable)
+        {
+            if (!dataTable.PrimaryKey.Any())
+            {
                 return;
             }
 
             var primaryKeyExpression = GetIndexExpression(dataTable.PrimaryKey);
             var existing = list.Find(x => x.Expression == primaryKeyExpression);
 
-            if (existing == null) {
-                list.Add(new Index {
+            if (existing == null)
+            {
+                list.Add(new Index
+                {
                     Name = "PK",
                     Expression = primaryKeyExpression,
                 });
             }
         }
 
-        private static void AddIndexes(List<Index> list, IEnumerable<DataRelation> dataRelations, bool isChildRelation) {
+        private static void AddIndexes(List<Index> list, IEnumerable<DataRelation> dataRelations, bool isChildRelation)
+        {
             var childRelations = dataRelations.Select(x => GetIndex(x, isChildRelation)).ToArray();
 
-            if (childRelations.Any()) {
+            if (childRelations.Any())
+            {
                 list.AddRange(childRelations);
             }
         }
 
-        private static Index GetIndex(DataRelation dataRelation, bool isChildRelation) {
+        private static Index GetIndex(DataRelation dataRelation, bool isChildRelation)
+        {
             var columns = isChildRelation ? dataRelation.ParentColumns : dataRelation.ChildColumns;
 
             return new Index { Name = dataRelation.RelationName, Expression = GetIndexExpression(columns) };
         }
 
-        private static string GetIndexExpression(DataColumn[] columns) {
-            if (columns.Length == 1) {
+        private static string GetIndexExpression(DataColumn[] columns)
+        {
+            if (columns.Length == 1)
+            {
                 return GetFieldExpression(columns[0], false);
             }
 
             return string.Join("+", columns.Select(x => GetFieldExpression(x, true)).Where(x => !string.IsNullOrEmpty(x)).ToArray());
         }
 
-        private static string GetFieldExpression(DataColumn column, bool isMultiPartExpression) {
-            if (column.DataType == typeof(string)) {
+        private static string GetFieldExpression(DataColumn column, bool isMultiPartExpression)
+        {
+            if (column.DataType == typeof(string))
+            {
                 var maxLength = GetStringLength(column);
 
                 return maxLength > VfpMapping.MaximumCharacterFieldSizeThatCanBeIndex ? string.Empty : column.ColumnName;
@@ -79,14 +97,17 @@ namespace VfpClient.Utils.DbcCreator {
             return isMultiPartExpression ? "STR(" + column.ColumnName + ")" : column.ColumnName;
         }
 
-        private static Field GetField(DataColumn dataColumn) {
+        private static Field GetField(DataColumn dataColumn)
+        {
             var typeCode = Type.GetTypeCode(dataColumn.DataType);
-            var field = new Field {
+            var field = new Field
+            {
                 Name = dataColumn.ColumnName,
                 Nullable = dataColumn.AllowDBNull
             };
 
-            switch (typeCode) {
+            switch (typeCode)
+            {
                 case TypeCode.Boolean:
                     field.VfpType = VfpType.Logical;
                     break;
@@ -123,14 +144,17 @@ namespace VfpClient.Utils.DbcCreator {
                     field.VfpType = VfpType.DateTime;
                     break;
                 default:
-                    if (dataColumn.DataType == typeof(byte[])) {
+                    if (dataColumn.DataType == typeof(byte[]))
+                    {
                         field.VfpType = VfpType.Blob;
                     }
-                    else if (dataColumn.DataType == typeof(Guid)) {
+                    else if (dataColumn.DataType == typeof(Guid))
+                    {
                         field.VfpType = VfpType.Character;
                         field.Width = VfpMapping.GuidStringWidth;
                     }
-                    else {
+                    else
+                    {
                         throw new NotSupportedException(dataColumn.DataType.ToString());
                     }
 
@@ -140,8 +164,10 @@ namespace VfpClient.Utils.DbcCreator {
             return field;
         }
 
-        private static int GetPrecision(DataColumn column) {
-            if (column.Table.Rows.Count == 0) {
+        private static int GetPrecision(DataColumn column)
+        {
+            if (column.Table.Rows.Count == 0)
+            {
                 return Math.Max(column.MaxLength, 0);
             }
 
@@ -151,15 +177,18 @@ namespace VfpClient.Utils.DbcCreator {
                                .Where(x => x.IndexOf('.') >= 0)
                                .Where(x => !x.EndsWith("."));
 
-            if (!values.Any()) {
+            if (!values.Any())
+            {
                 return 0;
             }
 
             return values.Select(x => x.Substring(x.IndexOf('.') + 1).Length).Max();
         }
 
-        private static int GetStringLength(DataColumn column) {
-            if (column.Table.Rows.Count == 0) {
+        private static int GetStringLength(DataColumn column)
+        {
+            if (column.Table.Rows.Count == 0)
+            {
                 return Math.Max(column.MaxLength, VfpMapping.MaximumCharacterFieldSize);
             }
 
@@ -169,7 +198,8 @@ namespace VfpClient.Utils.DbcCreator {
                                          .Select(x => x.Length)
                                          .Max();
 
-            if (calculatedLength > 0) {
+            if (calculatedLength > 0)
+            {
                 return calculatedLength;
             }
 

@@ -4,18 +4,24 @@ using System.Data;
 using System.Linq;
 using Index = VfpClient.VfpConnection.SchemaColumnNames.Index;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class IndexSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class IndexSchemaProvider : SchemaProviderBase
+        {
             public IndexSchemaProvider()
-                : base(VfpConnection.SchemaNames.Indexes, GetRestrictions(), null) {
+                : base(VfpConnection.SchemaNames.Indexes, GetRestrictions(), null)
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { Index.TableName, Index.IndexName };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var tableName = GetTableName(restrictionValues);
@@ -27,7 +33,8 @@ namespace VfpClient.Utils {
 
                 ModifyColumns(schema);
 
-                if (schema.Rows.Count == 0) {
+                if (schema.Rows.Count == 0)
+                {
                     return schema;
                 }
 
@@ -38,19 +45,22 @@ namespace VfpClient.Utils {
                 return schema;
             }
 
-            private static void UpdateAutoIncAndCandidate(VfpConnection connection, DataTable schema) {
+            private static void UpdateAutoIncAndCandidate(VfpConnection connection, DataTable schema)
+            {
                 var tableNames = schema.AsEnumerable().Select(x => x.Field<string>(Index.TableName)).Distinct();
                 var inserts = string.Join(Environment.NewLine, tableNames.Select(x => string.Format("INSERT INTO curTables VALUES('{0}')", x)).ToArray());
                 var vfpCode = string.Format(Resources.IndexSchemaAutoIncCandidate, inserts);
 
-                schema.AsEnumerable().ToList().ForEach(row => {
+                schema.AsEnumerable().ToList().ForEach(row =>
+                {
                     row[Index.AutoInc] = false;
                     row[Index.Candidate] = false;
                 });
 
                 connection.ExecuteScript(vfpCode);
 
-                using (var command = connection.CreateCommand()) {
+                using (var command = connection.CreateCommand())
+                {
                     command.CommandType = CommandType.Text;
                     command.CommandText = "SELECT * FROM curOutput";
 
@@ -60,22 +70,27 @@ namespace VfpClient.Utils {
                     da.Fill(dt);
 #endif
 
-                    using (var reader = command.ExecuteReader()) {
-                        while (reader.Read()) {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
                             var tableName = reader.GetString(0);
                             var fieldName = reader.GetString(1);
                             var isAutoInc = !string.IsNullOrEmpty(fieldName);
                             var indexName = reader.GetString(2);
                             var rows = schema.AsEnumerable().Where(x => x.Field<string>(Index.TableName) == tableName);
 
-                            if (string.IsNullOrEmpty(fieldName)) {
+                            if (string.IsNullOrEmpty(fieldName))
+                            {
                                 rows = rows.Where(x => x.Field<string>(Index.IndexName).ToUpper() == indexName);
                             }
-                            else {
+                            else
+                            {
                                 rows = rows.Where(x => x.Field<string>(Index.FieldName).ToUpper() == fieldName);
                             }
 
-                            rows.ToList().ForEach(row => {
+                            rows.ToList().ForEach(row =>
+                            {
                                 row[Index.AutoInc] = isAutoInc;
                                 row[Index.Candidate] = !isAutoInc;
                             });
@@ -87,13 +102,15 @@ namespace VfpClient.Utils {
                 }
             }
 
-            protected override void ModifyColumns(DataTable indexes) {
+            protected override void ModifyColumns(DataTable indexes)
+            {
                 base.ModifyColumns(indexes);
                 indexes.Columns.Add(Index.AutoInc, typeof(bool));
                 indexes.Columns.Add(Index.Candidate, typeof(bool));
             }
 
-            protected override IEnumerable<string> GetRequiredColumns() {
+            protected override IEnumerable<string> GetRequiredColumns()
+            {
                 yield return Index.TableName;
                 yield return Index.IndexName;
                 yield return Index.PrimaryKey;
@@ -105,7 +122,8 @@ namespace VfpClient.Utils {
                 yield return Index.Candidate;
             }
 
-            protected override void RenameColumns(DataTable indexes) {
+            protected override void RenameColumns(DataTable indexes)
+            {
                 indexes.Columns["TABLE_NAME"].ColumnName = Index.TableName;
                 indexes.Columns["INDEX_NAME"].ColumnName = Index.IndexName;
                 indexes.Columns["PRIMARY_KEY"].ColumnName = Index.PrimaryKey;
@@ -115,11 +133,13 @@ namespace VfpClient.Utils {
                 indexes.Columns["EXPRESSION"].ColumnName = Index.Expression;
             }
 
-            private static string GetIndexName(string[] restrictionValues) {
+            private static string GetIndexName(string[] restrictionValues)
+            {
                 return restrictionValues == null || restrictionValues.Length < 2 ? null : restrictionValues[1];
             }
 
-            private static string GetTableName(string[] restrictionValues) {
+            private static string GetTableName(string[] restrictionValues)
+            {
                 return restrictionValues == null || restrictionValues.Length < 1 ? null : restrictionValues[0];
             }
         }

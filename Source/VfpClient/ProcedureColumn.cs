@@ -1,7 +1,11 @@
-namespace VfpClient {
-    public partial class VfpConnection {
-        public partial class SchemaColumnNames {
-            public static class ProcedureColumn {
+namespace VfpClient
+{
+    public partial class VfpConnection
+    {
+        public partial class SchemaColumnNames
+        {
+            public static class ProcedureColumn
+            {
                 public static readonly string ProcedureName = Procedure.ProcedureName;
                 public static readonly string FieldName = TableField.FieldName;
                 public static readonly string VfpType = DataTypes.VfpType;

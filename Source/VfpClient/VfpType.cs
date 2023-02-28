@@ -1,5 +1,7 @@
-namespace VfpClient {
-    public enum VfpType {
+namespace VfpClient
+{
+    public enum VfpType
+    {
         Blob = 0,
         Character,
         BinaryCharacter,

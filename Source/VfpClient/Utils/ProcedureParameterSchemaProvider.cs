@@ -5,37 +5,47 @@ using System.Linq;
 using Procedure = VfpClient.VfpConnection.SchemaColumnNames.Procedure;
 using ProcedureParameter = VfpClient.VfpConnection.SchemaColumnNames.ProcedureParameter;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class ProcedureParameterSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class ProcedureParameterSchemaProvider : SchemaProviderBase
+        {
             public ProcedureParameterSchemaProvider()
-                : base(VfpConnection.SchemaNames.ProcedureParameters, GetRestrictions(), null) {
+                : base(VfpConnection.SchemaNames.ProcedureParameters, GetRestrictions(), null)
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { ProcedureParameter.ProcedureName, "IncludeReferentialIntegrity" };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var schema = CreateEmptyProcedureParametersDataTable();
 
-                if (!connection.IsDbc) {
+                if (!connection.IsDbc)
+                {
                     return schema;
                 }
 
                 var procedures = connection.GetSchema(VfpConnection.SchemaNames.Procedures, restrictionValues);
 
-                if (procedures.Rows.Count == 0) {
+                if (procedures.Rows.Count == 0)
+                {
                     return schema;
                 }
 
-                foreach (DataRow row in procedures.Rows) {
+                foreach (DataRow row in procedures.Rows)
+                {
                     var name = row[Procedure.ProcedureName].ToString();
                     var code = row[Procedure.ProcedureDefinition].ToString();
 
-                    if (string.IsNullOrEmpty(code)) {
+                    if (string.IsNullOrEmpty(code))
+                    {
                         continue;
                     }
 
@@ -53,22 +63,28 @@ namespace VfpClient.Utils {
                 return schema;
             }
 
-            private static void SetDataType(DataTable parameters) {
-                foreach (DataRow row in parameters.Rows) {
+            private static void SetDataType(DataTable parameters)
+            {
+                foreach (DataRow row in parameters.Rows)
+                {
                     VfpType vfpType;
 
-                    if (row.IsNull(ProcedureParameter.VfpType)) {
+                    if (row.IsNull(ProcedureParameter.VfpType))
+                    {
                         vfpType = row.Field<string>(ProcedureParameter.VfpTypeName).ToVfpType();
                     }
-                    else {
+                    else
+                    {
                         vfpType = (VfpType)row.Field<int>(ProcedureParameter.VfpType);
 
-                        if (!Enum.IsDefined(typeof(VfpType), vfpType)) {
+                        if (!Enum.IsDefined(typeof(VfpType), vfpType))
+                        {
                             vfpType = VfpType.Variant;
                         }
                     }
 
-                    if (vfpType == VfpType.Variant) {
+                    if (vfpType == VfpType.Variant)
+                    {
                         // set unknown datatypes to varchar
                         vfpType = VfpType.Varchar;
                     }
@@ -79,20 +95,24 @@ namespace VfpClient.Utils {
                 }
             }
 
-            private static void ParseHungarianNotation(DataTable parameters) {
+            private static void ParseHungarianNotation(DataTable parameters)
+            {
                 // only parse the rows that have a VfpTypeName of variant
                 var rows = parameters.AsEnumerable()
                                      .Where(row => row.Field<string>(ProcedureParameter.VfpTypeName).Equals("variant", StringComparison.InvariantCultureIgnoreCase))
                                      .ToList();
 
-                foreach (var row in rows) {
+                foreach (var row in rows)
+                {
                     var parameterName = row.Field<string>(ProcedureParameter.ParameterName);
 
-                    if (parameterName.Length > 2 && parameterName.StartsWith("t", StringComparison.InvariantCultureIgnoreCase)) {
+                    if (parameterName.Length > 2 && parameterName.StartsWith("t", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         var typeCharacter = parameterName.Substring(1, 1).ToLower();
 
                         // set "c" (character) to "v" (varchar - string)
-                        if (typeCharacter == "c") {
+                        if (typeCharacter == "c")
+                        {
                             typeCharacter = "v";
                         }
 
@@ -103,10 +123,12 @@ namespace VfpClient.Utils {
                 }
             }
 
-            private static void AddParameters(DataTable parameters, string procedureName, IEnumerable<ProcedureParameterInfo> list) {
+            private static void AddParameters(DataTable parameters, string procedureName, IEnumerable<ProcedureParameterInfo> list)
+            {
                 var ordinal = 0;
 
-                foreach (var item in list) {
+                foreach (var item in list)
+                {
                     var dataRow = parameters.NewRow();
 
                     dataRow[ProcedureParameter.ProcedureName] = procedureName;
@@ -118,7 +140,8 @@ namespace VfpClient.Utils {
                 }
             }
 
-            private DataTable CreateEmptyProcedureParametersDataTable() {
+            private DataTable CreateEmptyProcedureParametersDataTable()
+            {
                 var dataTable = new DataTable(Name);
 
                 dataTable.Columns.Add(ProcedureParameter.ProcedureName);
@@ -131,19 +154,23 @@ namespace VfpClient.Utils {
                 return dataTable;
             }
 
-            private static IEnumerable<ProcedureParameterInfo> GetParameters(string code) {
+            private static IEnumerable<ProcedureParameterInfo> GetParameters(string code)
+            {
                 return code.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(CreateProcedureParameter).ToList();
             }
 
-            private static ProcedureParameterInfo CreateProcedureParameter(string parameter) {
+            private static ProcedureParameterInfo CreateProcedureParameter(string parameter)
+            {
                 var index = parameter.IndexOf(" as ", StringComparison.CurrentCultureIgnoreCase);
                 var parameterInfo = new string[2];
 
-                if (index > 0) {
+                if (index > 0)
+                {
                     parameterInfo[0] = parameter.Substring(0, index).Trim();
                     parameterInfo[1] = parameter.Substring(index + 4).Trim().ToLower();
                 }
-                else {
+                else
+                {
                     parameterInfo[0] = parameter;
                     parameterInfo[1] = "variant";
                 }
@@ -154,41 +181,51 @@ namespace VfpClient.Utils {
                 return new ProcedureParameterInfo(parameterInfo[0], parameterInfo[1]);
             }
 
-            private static string RemoveParameterTokens(string parameter) {
-                foreach (var token in GetParameterTokens()) {
-                    if (parameter.StartsWith(token, StringComparison.CurrentCultureIgnoreCase)) {
+            private static string RemoveParameterTokens(string parameter)
+            {
+                foreach (var token in GetParameterTokens())
+                {
+                    if (parameter.StartsWith(token, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         parameter = parameter.Substring(token.Length);
                         break;
                     }
                 }
 
-                if (parameter.EndsWith(")")) {
+                if (parameter.EndsWith(")"))
+                {
                     parameter = parameter.Substring(0, parameter.Length - 1);
                 }
 
                 return parameter.Trim();
             }
 
-            private static string GetParameterCode(string code) {
+            private static string GetParameterCode(string code)
+            {
                 var codeLines = code.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 var parameterCodeLines = new List<string>();
                 var startTokenFound = false;
 
-                foreach (var codeLine in codeLines) {
+                foreach (var codeLine in codeLines)
+                {
                     var line = codeLine.Trim();
 
                     // skip comment lines
-                    if (IsCommentLine(line)) {
+                    if (IsCommentLine(line))
+                    {
                         continue;
                     }
 
-                    if (!startTokenFound) {
+                    if (!startTokenFound)
+                    {
                         startTokenFound = HasParameterToken(line);
                     }
 
-                    if (startTokenFound) {
+                    if (startTokenFound)
+                    {
                         // check to see if the loop needs to continue due to a line continuation character
-                        if (line.EndsWith(";")) {
+                        if (line.EndsWith(";"))
+                        {
                             // add the line minus the trailing semi-clone... add a space just to be safe
                             parameterCodeLines.Add(line.Substring(0, line.Length - 1) + " ");
                             continue;
@@ -203,24 +240,29 @@ namespace VfpClient.Utils {
                 return string.Join(" ", parameterCodeLines.ToArray());
             }
 
-            private static bool HasParameterToken(string line) {
+            private static bool HasParameterToken(string line)
+            {
                 return GetParameterTokens().Any(token => line.StartsWith(token, StringComparison.CurrentCultureIgnoreCase));
             }
 
-            private static IEnumerable<string> GetParameterTokens() {
+            private static IEnumerable<string> GetParameterTokens()
+            {
                 yield return "(";
                 yield return "lparameters ";
                 yield return "parameters ";
             }
 
-            private static bool IsCommentLine(string line) {
+            private static bool IsCommentLine(string line)
+            {
                 return line.StartsWith("*") || line.StartsWith("&&");
             }
 
-            private static string RemoveParameterName(string name, string code) {
+            private static string RemoveParameterName(string name, string code)
+            {
                 var start = code.IndexOf(name, StringComparison.CurrentCultureIgnoreCase);
 
-                if (start == -1) {
+                if (start == -1)
+                {
                     // should never happen
                     throw new VfpException("Cannot locate parameter name.");
                 }

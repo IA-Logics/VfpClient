@@ -1,14 +1,19 @@
 using System.Data;
 using Restriction = VfpClient.VfpConnection.SchemaColumnNames.Restriction;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class RestrictionSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class RestrictionSchemaProvider : SchemaProviderBase
+        {
             public RestrictionSchemaProvider()
-                : base(VfpConnection.SchemaNames.Restrictions) {
+                : base(VfpConnection.SchemaNames.Restrictions)
+            {
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var dataTable = new DataTable(Name);

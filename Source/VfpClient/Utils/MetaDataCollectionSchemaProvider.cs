@@ -1,14 +1,19 @@
 using System.Data;
 using MetaDataCollection = VfpClient.VfpConnection.SchemaColumnNames.MetaDataCollection;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class MetaDataCollectionSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class MetaDataCollectionSchemaProvider : SchemaProviderBase
+        {
             public MetaDataCollectionSchemaProvider()
-                : base(VfpConnection.SchemaNames.MetaDataCollections) {
+                : base(VfpConnection.SchemaNames.MetaDataCollections)
+            {
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var dataTable = new DataTable(Name);

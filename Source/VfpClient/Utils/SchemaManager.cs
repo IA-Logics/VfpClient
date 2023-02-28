@@ -4,46 +4,58 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
         private readonly VfpConnection _connection;
         private IEnumerable<ISchemaProvider> _providers;
 
-        public IEnumerable<ISchemaProvider> Providers {
+        public IEnumerable<ISchemaProvider> Providers
+        {
             get { return _providers ?? (_providers = GetProviders().ToList()); }
         }
 
-        public SchemaManager(VfpConnection connection) {
+        public SchemaManager(VfpConnection connection)
+        {
             _connection = connection;
         }
 
-        public DataTable GetSchema() {
+        public DataTable GetSchema()
+        {
             return GetSchema(VfpConnection.SchemaNames.MetaDataCollections);
         }
 
-        public DataTable GetSchema(string collectionName) {
+        public DataTable GetSchema(string collectionName)
+        {
             return GetSchema(collectionName, null);
         }
 
-        public DataTable GetSchema(string collectionName, string[] restrictionValues) {
+        public DataTable GetSchema(string collectionName, string[] restrictionValues)
+        {
             var stopwatch = Stopwatch.StartNew();
 
-            if (VfpClientTracing.Tracer.ShouldTraceVerbose()) {
+            if (VfpClientTracing.Tracer.ShouldTraceVerbose())
+            {
                 VfpClientTracing.Tracer.TraceVerbose(string.Format("{0} collectionName={1}", MethodBase.GetCurrentMethod().Name, collectionName));
             }
 
-            if (_connection.State != ConnectionState.Open) {
+            if (_connection.State != ConnectionState.Open)
+            {
                 throw new VfpException(Resources.VfpConnection_OpenConnectionForGetSchema);
             }
 
-            if (string.IsNullOrEmpty(collectionName)) {
+            if (string.IsNullOrEmpty(collectionName))
+            {
                 throw new VfpException(string.Format(Resources.VfpConnection_GetSchemaUnknownCollection, string.Empty));
             }
 
             DataTable dataTable = null;
 
-            foreach (var provider in Providers.Where(provider => provider.CanExecute(collectionName))) {
-                if (restrictionValues != null && (provider.Restrictions == null || restrictionValues.Length > provider.Restrictions.Length)) {
+            foreach (var provider in Providers.Where(provider => provider.CanExecute(collectionName)))
+            {
+                if (restrictionValues != null && (provider.Restrictions == null || restrictionValues.Length > provider.Restrictions.Length))
+                {
                     throw new VfpException(string.Format(Resources.VfpConnection_GetSchemaWrongRestrictions, collectionName, provider.Restrictions.Length));
                 }
 
@@ -51,8 +63,10 @@ namespace VfpClient.Utils {
                 break;
             }
 
-            if (dataTable == null) {
-                switch (collectionName.ToLower()) {
+            if (dataTable == null)
+            {
+                switch (collectionName.ToLower())
+                {
                     case "reservedwords":
                         dataTable = _connection.OleDbConnection.GetSchema(collectionName, restrictionValues);
                         break;
@@ -63,14 +77,16 @@ namespace VfpClient.Utils {
 
             stopwatch.Stop();
 
-            if (VfpClientTracing.Tracer.ShouldTraceVerbose()) {
+            if (VfpClientTracing.Tracer.ShouldTraceVerbose())
+            {
                 VfpClientTracing.Tracer.TraceVerbose(string.Format("{0} collectionName={1} : Duration={2}", MethodBase.GetCurrentMethod().Name, collectionName, stopwatch.Elapsed));
             }
 
             return dataTable;
         }
 
-        private IEnumerable<ISchemaProvider> GetProviders() {
+        private IEnumerable<ISchemaProvider> GetProviders()
+        {
             yield return new CandidateKeySchemaProvider();
             yield return new DataTypesSchemaProvider();
             yield return new DataSourceInformationSchemaProvider();

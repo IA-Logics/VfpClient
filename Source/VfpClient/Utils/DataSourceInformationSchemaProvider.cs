@@ -3,14 +3,19 @@ using System.Data;
 using System.Data.Common;
 using DataSourceInformation = VfpClient.VfpConnection.SchemaColumnNames.DataSourceInformation;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class DataSourceInformationSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class DataSourceInformationSchemaProvider : SchemaProviderBase
+        {
             public DataSourceInformationSchemaProvider()
-                : base(VfpConnection.SchemaNames.DataSourceInformation) {
+                : base(VfpConnection.SchemaNames.DataSourceInformation)
+            {
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var dataTable = new DataTable(Name);

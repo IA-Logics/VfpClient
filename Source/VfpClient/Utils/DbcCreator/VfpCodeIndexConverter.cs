@@ -1,6 +1,9 @@
-namespace VfpClient.Utils.DbcCreator {
-    internal static class VfpCodeIndexConverter {
-        public static string GetVfpCode(Table table, Index index) {
+namespace VfpClient.Utils.DbcCreator
+{
+    internal static class VfpCodeIndexConverter
+    {
+        public static string GetVfpCode(Table table, Index index)
+        {
             ArgumentUtility.CheckNotNull("table", table);
             ArgumentUtility.CheckNotNull("index", index);
 

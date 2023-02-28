@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 
-namespace VfpClient.Utils {
-    internal static partial class CommandTextParser {
-        internal class CommandTextHandler : ITokenHandler {
-            public string Type {
+namespace VfpClient.Utils
+{
+    internal static partial class CommandTextParser
+    {
+        internal class CommandTextHandler : ITokenHandler
+        {
+            public string Type
+            {
                 get { return GetType().ToString(); }
             }
 
@@ -11,29 +15,34 @@ namespace VfpClient.Utils {
             public TokenHandler From { get; private set; }
             private readonly ITokenHandler _tokenHandler;
 
-            public CommandTextHandler() {
+            public CommandTextHandler()
+            {
                 Command = CreateCommandTokenHandler();
                 From = new TokenHandler("From");
                 _tokenHandler = GetTokenHandler();
             }
 
-            public bool IsValid(string token) {
+            public bool IsValid(string token)
+            {
                 return _tokenHandler.IsValid(token);
             }
 
-            public void Add(string token) {
+            public void Add(string token)
+            {
                 _tokenHandler.Add(token);
             }
 
-            private ITokenHandler GetTokenHandler() {
+            private ITokenHandler GetTokenHandler()
+            {
                 return new OrderedTokenHandler(new List<ITokenHandler> {
-                                                   Command, 
-                                                   From, 
+                                                   Command,
+                                                   From,
                                                    new UnOrderedTokenHandler(GetOptionalTokenHandlers())
                                                });
             }
 
-            private static IEnumerable<ITokenHandler> GetOptionalTokenHandlers() {
+            private static IEnumerable<ITokenHandler> GetOptionalTokenHandlers()
+            {
                 yield return new TokenHandler("Where");
                 yield return new TokenHandler("Order");
                 yield return new TokenHandler("Inner");
@@ -42,7 +51,8 @@ namespace VfpClient.Utils {
                 yield return new TokenHandler("Join");
             }
 
-            private static ITokenHandler CreateCommandTokenHandler() {
+            private static ITokenHandler CreateCommandTokenHandler()
+            {
                 return new FirstValidTokenHandler(new List<ITokenHandler> {
                                                     new TokenHandler("Select"),
                                                     new TokenHandler("Delete"),

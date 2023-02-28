@@ -6,31 +6,39 @@ using System.Linq;
 using ForeignKey = VfpClient.VfpConnection.SchemaColumnNames.ForeignKey;
 using Index = VfpClient.VfpConnection.SchemaColumnNames.Index;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class ForeignKeySchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class ForeignKeySchemaProvider : SchemaProviderBase
+        {
             public ForeignKeySchemaProvider()
-                : base(VfpConnection.SchemaNames.ForeignKeys, GetRestrictions(), null) {
+                : base(VfpConnection.SchemaNames.ForeignKeys, GetRestrictions(), null)
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { ForeignKey.PrimaryKeyTableName, ForeignKey.ForeignKeyTableName };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var foreignKeys = connection.OleDbConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Foreign_Keys, null);
                 ModifyColumns(foreignKeys);
 
-                if (!connection.IsDbc || foreignKeys.Rows.Count == 0) {
+                if (!connection.IsDbc || foreignKeys.Rows.Count == 0)
+                {
                     return foreignKeys;
                 }
 
                 // using indexes just so that the restrictionValues can be applied to the foreignKeys 
                 var indexes = connection.GetSchema(VfpConnection.SchemaNames.Indexes, restrictionValues);
 
-                if (indexes.Rows.Count == 0) {
+                if (indexes.Rows.Count == 0)
+                {
                     return foreignKeys;
                 }
 
@@ -41,7 +49,8 @@ namespace VfpClient.Utils {
                                 && foreignKey.Field<string>(ForeignKey.ForeignKeyFieldName).Equals(index.Field<string>(Index.FieldName), StringComparison.InvariantCultureIgnoreCase)
                             select foreignKey;
 
-                if (!query.Any()) {
+                if (!query.Any())
+                {
                     foreignKeys.Clear();
                     return foreignKeys;
                 }
@@ -50,24 +59,26 @@ namespace VfpClient.Utils {
                 schema.TableName = Name;
 
                 FormatColumnValues(schema,
-                                        new[] { 
-                                        ForeignKey.ForeignKeyTableName, 
-                                        ForeignKey.ForeignKeyFieldName, 
-                                        ForeignKey.ForeignKeyIndexName, 
-                                        ForeignKey.PrimaryKeyTableName, 
-                                        ForeignKey.PrimaryKeyFieldName, 
-                                        ForeignKey.PrimaryKeyIndexName 
+                                        new[] {
+                                        ForeignKey.ForeignKeyTableName,
+                                        ForeignKey.ForeignKeyFieldName,
+                                        ForeignKey.ForeignKeyIndexName,
+                                        ForeignKey.PrimaryKeyTableName,
+                                        ForeignKey.PrimaryKeyFieldName,
+                                        ForeignKey.PrimaryKeyIndexName
                                     });
 
                 return schema;
             }
 
-            protected override void ModifyColumns(DataTable foreignKeys) {
+            protected override void ModifyColumns(DataTable foreignKeys)
+            {
                 base.ModifyColumns(foreignKeys);
                 AddForeignKeyNameColumn(foreignKeys);
             }
 
-            private void AddForeignKeyNameColumn(DataTable foreignKeys) {
+            private void AddForeignKeyNameColumn(DataTable foreignKeys)
+            {
                 foreignKeys.Columns.Add(ForeignKey.ForeignKeyName,
                                         typeof(string),
                                         string.Format("'FK___' + {0} + '_' + {1} + '___' + {2} + '_' + {3}",
@@ -77,7 +88,8 @@ namespace VfpClient.Utils {
                                                       ForeignKey.PrimaryKeyFieldName));
             }
 
-            protected override IEnumerable<string> GetRequiredColumns() {
+            protected override IEnumerable<string> GetRequiredColumns()
+            {
                 yield return ForeignKey.PrimaryKeyTableName;
                 yield return ForeignKey.PrimaryKeyFieldName;
                 yield return ForeignKey.PrimaryKeyIndexName;
@@ -86,7 +98,8 @@ namespace VfpClient.Utils {
                 yield return ForeignKey.ForeignKeyIndexName;
             }
 
-            protected override void RenameColumns(DataTable foreignKeys) {
+            protected override void RenameColumns(DataTable foreignKeys)
+            {
                 foreignKeys.Columns["PK_TABLE_NAME"].ColumnName = ForeignKey.PrimaryKeyTableName;
                 foreignKeys.Columns["PK_COLUMN_NAME"].ColumnName = ForeignKey.PrimaryKeyFieldName;
                 foreignKeys.Columns["PK_NAME"].ColumnName = ForeignKey.PrimaryKeyIndexName;

@@ -3,51 +3,66 @@ using System.Linq;
 using ProcedureColumn = VfpClient.VfpConnection.SchemaColumnNames.ProcedureColumn;
 using ProcedureParameter = VfpClient.VfpConnection.SchemaColumnNames.ProcedureParameter;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class ProcedureColumnSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class ProcedureColumnSchemaProvider : SchemaProviderBase
+        {
             public ProcedureColumnSchemaProvider()
-                : base(VfpConnection.SchemaNames.ProcedureColumns, GetRestrictions(), null) {
+                : base(VfpConnection.SchemaNames.ProcedureColumns, GetRestrictions(), null)
+            {
             }
 
-            private static string[] GetRestrictions() {
+            private static string[] GetRestrictions()
+            {
                 return new[] { ProcedureColumn.ProcedureName, "IncludeReferentialIntegrity" };
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var schema = CreateEmptyDataTable();
 
-                if (!connection.IsDbc) {
+                if (!connection.IsDbc)
+                {
                     return schema;
                 }
 
                 var parameters = connection.GetSchema(VfpConnection.SchemaNames.ProcedureParameters, restrictionValues);
 
-                if (parameters.Rows.Count == 0) {
+                if (parameters.Rows.Count == 0)
+                {
                     return schema;
                 }
 
                 var list = (from p in parameters.AsEnumerable()
                             group p by p.Field<string>(ProcedureParameter.ProcedureName) into g
-                            select new {
+                            select new
+                            {
                                 ProcedureName = g.Key,
-                                Parameters = g.Select(item => new {
+                                Parameters = g.Select(item => new
+                                {
                                     ParameterName = item.Field<string>(ProcedureParameter.ParameterName),
                                     VfpType = (VfpType)item.Field<int>(ProcedureParameter.VfpType)
                                 }).ToList()
                             }).ToList();
 
-                foreach (var item in list) {
-                    using (var command = connection.CreateCommand()) {
+                foreach (var item in list)
+                {
+                    using (var command = connection.CreateCommand())
+                    {
                         command.CommandType = CommandType.StoredProcedure;
                         command.CommandText = item.ProcedureName;
                         command.CommandText += "(";
 
-                        if (item.Parameters.Count > 0) {
-                            for (int index = 0, total = item.Parameters.Count; index < total; index++) {
-                                if (index > 0) {
+                        if (item.Parameters.Count > 0)
+                        {
+                            for (int index = 0, total = item.Parameters.Count; index < total; index++)
+                            {
+                                if (index > 0)
+                                {
                                     command.CommandText += ", ";
                                 }
 
@@ -58,13 +73,15 @@ namespace VfpClient.Utils {
                         }
                         command.CommandText += ")";
 
-                        try {
+                        try
+                        {
                             var reader = command.ExecuteReader(CommandBehavior.SchemaOnly);
                             var schemaTable = reader.GetSchemaTable();
 
                             AddSchemaRows(item.ProcedureName, schema, schemaTable);
                         }
-                        catch (VfpException ex) {
+                        catch (VfpException ex)
+                        {
                             VfpClientTracing.Tracer.TraceError(ex);
                         }
                     }
@@ -75,8 +92,10 @@ namespace VfpClient.Utils {
                 return schema;
             }
 
-            private static void AddSchemaRows(string procedureName, DataTable columns, DataTable schema) {
-                foreach (DataRow row in schema.Rows) {
+            private static void AddSchemaRows(string procedureName, DataTable columns, DataTable schema)
+            {
+                foreach (DataRow row in schema.Rows)
+                {
                     DataRow newRow = columns.NewRow();
 
                     newRow[ProcedureColumn.FieldName] = row["ColumnName"];
@@ -93,7 +112,8 @@ namespace VfpClient.Utils {
                 }
             }
 
-            private static DataTable CreateEmptyDataTable() {
+            private static DataTable CreateEmptyDataTable()
+            {
                 var dataTable = new DataTable();
 
                 dataTable.Columns.Add(ProcedureColumn.ProcedureName, typeof(string));

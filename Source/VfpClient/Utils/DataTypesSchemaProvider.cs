@@ -2,14 +2,19 @@ using System;
 using System.Data;
 using DataTypes = VfpClient.VfpConnection.SchemaColumnNames.DataTypes;
 
-namespace VfpClient.Utils {
-    internal partial class SchemaManager {
-        internal class DataTypesSchemaProvider : SchemaProviderBase {
+namespace VfpClient.Utils
+{
+    internal partial class SchemaManager
+    {
+        internal class DataTypesSchemaProvider : SchemaProviderBase
+        {
             public DataTypesSchemaProvider()
-                : base(VfpConnection.SchemaNames.DataTypes) {
+                : base(VfpConnection.SchemaNames.DataTypes)
+            {
             }
 
-            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues) {
+            public override DataTable GetSchema(VfpConnection connection, string[] restrictionValues)
+            {
                 ArgumentUtility.CheckNotNull("connection", connection);
 
                 var dataTable = new DataTable(Name);
